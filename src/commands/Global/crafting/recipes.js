@@ -30,9 +30,12 @@ module.exports = {
 				fields: recipes.map((recipe) => ({
 					name: recipe.name,
 					value:
-						`* Durability: **${recipe.durability}**` +
-						`${recipe.choppingSpeed !== undefined && recipe.choppingSpeed !== null ? `\n* Chopping Speed: **${recipe.choppingSpeed}**` : ''}` +
-						`\n* Materials:\n${recipe.materials.map((material) => `  * ${material.display}: **${material.amount}**`).join('\n')}`,
+						`\`\`\`yaml\n` +
+						`Durability: ${recipe.durability}\n` +
+						`${recipe.choppingSpeed !== undefined && recipe.choppingSpeed !== null ? `Chopping Speed: ${recipe.choppingSpeed}\n` : ''}` +
+						`Materials:\n${recipe.materials.map((material) => `  ${material.display}: x${material.amount}`).join('\n')}` +
+						`\n\`\`\``,
+					inline: true,
 				})),
 				footer: {
 					text: interaction.user.username,

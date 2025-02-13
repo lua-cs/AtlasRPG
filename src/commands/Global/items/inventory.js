@@ -40,43 +40,53 @@ module.exports = {
 };
 
 function createInventoryEmbed(user, items, equippedItem, materials) {
-	const fields = items.map((item) => ({
-		name: item.name,
-		value:
-			`* Durability: **${item.durability}**` +
-			`${item.choppingSpeed !== undefined && item.choppingSpeed !== null ? `\n* Chopping Speed: **${item.choppingSpeed}**` : ''}` +
-			`\n* Equippable: **${item.equippable ? 'Yes' : 'No'}**`,
-	}));
-
-	let description = '';
+	const fields = [];
 
 	if (equippedItem) {
-		fields.unshift({
+		fields.push({
 			name: 'Equipped Item',
 			value:
-				`* Name: **${equippedItem.name}**` +
-				`\n* Durability: **${equippedItem.durability}**` +
-				`${equippedItem.choppingSpeed !== undefined && equippedItem.choppingSpeed !== null ? `\n* Chopping Speed: **${equippedItem.choppingSpeed}**` : ''}`,
+				`\`\`\`yaml\n` +
+				`Name: ${equippedItem.name}\n` +
+				`Durability: ${equippedItem.durability}\n` +
+				`${equippedItem.choppingSpeed !== undefined && equippedItem.choppingSpeed !== null ? `Chopping Speed: ${equippedItem.choppingSpeed}\n` : ''}` +
+				`\`\`\``,
+			inline: true,
 		});
 	}
 
-	if (fields.length === 0) {
-		description = 'Your inventory is empty.';
-	}
-
-	const materialsString = Object.keys(materials)
-		.map((material) => `* ${material.replace('_', ' ').replace(/\b\w/g, (char) => char.toUpperCase())}: **${materials[material]}**`)
-		.join('\n');
+	const materialsString = `\`\`\`yaml\n${Object.keys(materials)
+		.map((material) => `${material.replace('_', ' ').replace(/\b\w/g, (char) => char.toUpperCase())}: ${materials[material]}`)
+		.join('\n')}\n\`\`\``;
 
 	fields.push({
 		name: 'Materials',
 		value: materialsString || 'You have no materials.',
+		inline: true,
+	});
+
+	const inventoryString = items
+		.map(
+			(item) =>
+				`\`\`\`yaml\n` +
+				`Name: ${item.name}\n` +
+				`Durability: ${item.durability}\n` +
+				`${item.choppingSpeed !== undefined && item.choppingSpeed !== null ? `Chopping Speed: ${item.choppingSpeed}\n` : ''}` +
+				`Equippable: ${item.equippable ? 'Yes' : 'No'}\n` +
+				`\`\`\``
+		)
+		.join('\n');
+
+	fields.push({
+		name: 'Inventory Items',
+		value: inventoryString || 'You have no items.',
+		inline: false,
 	});
 
 	return {
 		title: `Your Inventory`,
 		color: 0xffffff,
-		description: description,
+		description: '',
 		fields: fields,
 		footer: {
 			text: user.username,

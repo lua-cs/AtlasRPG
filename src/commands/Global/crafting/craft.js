@@ -76,7 +76,7 @@ function createCraftEmbed(user, recipe) {
 				value:
 					`* Durability: **${recipe.durability}**` +
 					`${recipe.choppingSpeed !== undefined && recipe.choppingSpeed !== null ? `\n* Chopping Speed: **${recipe.choppingSpeed}**` : ''}` +
-					`\n* Materials:\n${recipe.materials.map((material) => `  * **${material.display}**: **${material.amount}**`).join('\n')}`,
+					`\n* Materials:\n${recipe.materials.map((material) => `  * ${material.display}: **x${material.amount}**`).join('\n')}`,
 			},
 		],
 		footer: {

@@ -46,8 +46,31 @@ const updates = [
     
     # <:Added:1338951944890482758> New Commands:
     1. **/changelog <version>**
-      - View an update changelog for recent versions
-    @everyone`,
+      - View an update changelog for recent versions`,
+	},
+	{
+		name: 'v1.2.0',
+		description: `# Update Changelog
+	> **Date:** February 12, 2025
+	> **Update Version:** v1.2.0
+	> **Update Type:** Major *(Major, Minor, Patch/Hotfix)*
+	
+	# <:Added:1338951944890482758> New Commands:
+	1. **/ping**
+	   - Check the bot's latency and API response time.
+	
+	# <:Changes:1339074004601802772> Changes Made:
+	### Interface:
+	- Redid **/recipe** interface to use codeblocks for better readability.
+	- Redid **/inventory** interface to use codeblocks for better readability.
+	- Added \`x\` before numbers to signify quantitative amounts in materials.
+	
+	### Bug Fixes:
+	- Fixed various bugs to improve stability and performance.
+	
+	### Performance Improvements:
+	- Optimization added to enhance command response times and overall bot performance.
+	`,
 	},
 ];
 
