@@ -6,7 +6,7 @@ const updates = [
 		description: `# Update Changelog
 > **Date:** February 11, 2025
 > **Update Version:** v1.1.0
-> **Update Type:** Major (*Major, Minor, Patch/Hotfix*)
+> **Update Type:** Major
 # <:Added:1338951944890482758> New Commands:
 1. **/craft <item>**
    - Allows users to craft items using materials from their inventory.
@@ -42,35 +42,34 @@ const updates = [
 		description: `# Update Changelog
     > **Date:** February 12, 2025
     > **Update Version:** v1.1.1
-    > **Update Type:** Minor *(Major, Minor, Patch/Hotfix)*
+    > **Update Type:** Minor
     
     # <:Added:1338951944890482758> New Commands:
     1. **/changelog <version>**
       - View an update changelog for recent versions`,
 	},
 	{
-		name: 'v1.2.0',
+		name: 'v1.1.2',
 		description: `# Update Changelog
-	> **Date:** February 12, 2025
-	> **Update Version:** v1.2.0
-	> **Update Type:** Major *(Major, Minor, Patch/Hotfix)*
-	
-	# <:Added:1338951944890482758> New Commands:
-	1. **/ping**
-	   - Check the bot's latency and API response time.
-	
-	# <:Changes:1339074004601802772> Changes Made:
-	### Interface:
-	- Redid **/recipe** interface to use codeblocks for better readability.
-	- Redid **/inventory** interface to use codeblocks for better readability.
-	- Added \`x\` before numbers to signify quantitative amounts in materials.
-	
-	### Bug Fixes:
-	- Fixed various bugs to improve stability and performance.
-	
-	### Performance Improvements:
-	- Optimization added to enhance command response times and overall bot performance.
-	`,
+> **Date:** February 12, 2025
+> **Update Version:** v1.1.2
+> **Update Type:** Minor
+# <:Added:1338951944890482758> New Commands:
+1. **/ping**
+   - Check the bot's latency.
+
+# <:Changes:1339074004601802772> Changes Made:
+### Interface:
+- **/recipe** command interface has been revamped to use codeblocks for better readability. This change makes it easier to view and understand the crafting recipes.
+- **/inventory** command interface has been updated to use codeblocks for better readability. This change improves the clarity of the inventory display.
+- Added \`x\` before numbers to signify quantitative amounts in materials. This change helps users quickly identify the quantity of materials they have.
+### Bug Fixes:
+- Fixed various bugs that were causing instability and performance issues. These fixes include resolving issues with command execution and data retrieval.
+### Performance Improvements:
+- Added optimizations to enhance command response times and overall bot performance. These improvements ensure a smoother and faster user experience.
+## Note:
+* The next update will be the **Mining Update**, introducing new features such as **Stone**, **Iron**, **Pickaxes**, and **more**!
+`,
 	},
 ];
 
