@@ -29,22 +29,32 @@ module.exports = {
 
 		try {
 			const recipe = recipesObject.find((r) => r.name === item);
-			if (!recipe) {
-				await interaction.editReply(`### <:Removed:1338951500524949546> Recipe for **${item}** not found.`);
-				return;
-			}
-
 			const userData = await DataService.getUserData(userId);
 
 			if (userData.inventory[item] || (userData.equippedItem && userData.equippedItem.name === item)) {
-				await interaction.editReply(`### <:Removed:1338951500524949546> You already have a **${item}** in your inventory or equipped.`);
+				await interaction.editReply({
+					embeds: [
+						{
+							title: '',
+							description: `<:Removed:1338951500524949546> You already have a **${item}** in your inventory or equipped.`,
+							color: 0xffffff,
+						},
+					],
+				});
 				return;
 			}
 
 			const hasEnoughMaterials = recipe.materials.every((material) => userData.materials[material.name] >= material.amount);
-
 			if (!hasEnoughMaterials) {
-				await interaction.editReply(`### <:Removed:1338951500524949546> You do not have enough materials to craft a **${item}**.`);
+				await interaction.editReply({
+					embeds: [
+						{
+							title: '',
+							description: `<:Removed:1338951500524949546> You do not have enough materials to craft a **${item}**.`,
+							color: 0xffffff,
+						},
+					],
+				});
 				return;
 			}
 
@@ -74,9 +84,12 @@ function createCraftEmbed(user, recipe) {
 			{
 				name: 'Crafting Details',
 				value:
-					`* Durability: **${recipe.durability}**` +
-					`${recipe.choppingSpeed !== undefined && recipe.choppingSpeed !== null ? `\n* Chopping Speed: **${recipe.choppingSpeed}**` : ''}` +
-					`\n* Materials:\n${recipe.materials.map((material) => `  * ${material.display}: **x${material.amount}**`).join('\n')}`,
+					`\`\`\`yaml\n` +
+					`Durability: ${recipe.durability}\n` +
+					`${recipe.choppingPower !== undefined && recipe.choppingPower !== null ? `Chopping Power: ${recipe.choppingPower}\n` : ''}` +
+					`${recipe.miningPower !== undefined && recipe.miningPower !== null ? `Mining Power: ${recipe.miningPower}\n` : ''}` +
+					`Materials:\n${recipe.materials.map((material) => `  ${material.display}: x${material.amount}`).join('\n')}` +
+					`\`\`\``,
 			},
 		],
 		footer: {

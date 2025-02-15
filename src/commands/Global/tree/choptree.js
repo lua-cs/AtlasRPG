@@ -4,13 +4,21 @@ const path = require('path');
 const activeUsers = new Set();
 
 module.exports = {
-	data: { name: 'choptree', description: 'Chop down a tree to gather resources' },
+	data: { name: 'choptree', description: 'Chop down trees with your axe for wood materials' },
 
 	run: async ({ interaction }) => {
 		const userId = interaction.user.id;
 
 		if (activeUsers.has(userId)) {
-			return interaction.reply({ content: 'You are already chopping a tree.', ephemeral: true });
+			return interaction.reply({
+				embeds: [
+					{
+						title: '',
+						description: `<:Removed:1338951500524949546> You are already chopping a tree.`,
+						color: 0xffffff,
+					},
+				],
+			});
 		}
 
 		activeUsers.add(userId);
@@ -19,22 +27,24 @@ module.exports = {
 
 		try {
 			const userData = await DataService.getUserData(userId);
-			const axe = userData.equippedItem;
+			const equippedItem = userData.equippedItem;
 
-			if (!axe || axe.category !== 'axe') {
+			if (!equippedItem || equippedItem.category !== 'axe') {
 				activeUsers.delete(userId);
-				return interaction.editReply(`### <:Removed:1338951500524949546> Equip an axe to shop a tree.`);
+				return interaction.editReply(`### <:Removed:1338951500524949546> Equip an axe to chop a tree.`);
 			}
+
+			const axe = equippedItem;
 
 			const treeType = ['oak_tree', 'birch_tree'][Math.floor(Math.random() * 2)];
 			const woodType = `${treeType.split('_')[0]}_wood`;
 
 			const treeImage = new AttachmentBuilder(path.resolve(__dirname, '../../../images', `${treeType}.png`));
-			const woodCollected = Math.floor(Math.random() * 5) + 3;
+			const woodCollected = Math.floor(Math.random() * 5) + 1; // nerfed
 			const userMaterials = userData.materials || {};
 			const woodAmount = userMaterials[woodType] || 0;
 
-			const progressStep = axe.choppingSpeed || 10;
+			const progressStep = (axe.choppingPower === Infinity ? 100 : axe.choppingPower) || 10; // 100: replace with highest HP tree
 			const estimatedTime = (100 / progressStep) * 1;
 
 			const embed = {

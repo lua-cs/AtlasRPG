@@ -2,7 +2,7 @@ const { ApplicationCommandOptionType } = require('discord.js');
 
 module.exports = {
 	data: {
-		name: 'recipes',
+		name: 'itemrecipes',
 		description: 'View crafting recipes for a specified category',
 		options: [
 			{
@@ -10,7 +10,10 @@ module.exports = {
 				description: 'What category to view',
 				type: ApplicationCommandOptionType.String,
 				required: true,
-				choices: [{ name: 'Axe', value: 'axe' }],
+				choices: [
+					{ name: 'Axe', value: 'axe' },
+					{ name: 'Pickaxe', value: 'pickaxe' },
+				],
 			},
 		],
 	},
@@ -22,7 +25,7 @@ module.exports = {
 		await interaction.deferReply();
 
 		try {
-			const recipes = recipesObject.filter((recipe) => recipe.category === category);
+			const recipes = recipesObject.filter((recipe) => recipe.category === category && recipe.display);
 
 			const recipeEmbed = {
 				title: `${category.charAt(0).toUpperCase() + category.slice(1)} Recipes`,
@@ -31,8 +34,9 @@ module.exports = {
 					name: recipe.name,
 					value:
 						`\`\`\`yaml\n` +
-						`Durability: ${recipe.durability}\n` +
-						`${recipe.choppingSpeed !== undefined && recipe.choppingSpeed !== null ? `Chopping Speed: ${recipe.choppingSpeed}\n` : ''}` +
+						`${recipe.durability !== undefined && recipe.durability !== null ? `Durability: ${recipe.durability}\n` : ''}` +
+						`${recipe.choppingPower !== undefined && recipe.choppingPower !== null ? `Chopping Power: ${recipe.choppingPower}\n` : ''}` +
+						`${recipe.miningPower !== undefined && recipe.miningPower !== null ? `Mining Power: ${recipe.miningPower}\n` : ''}` +
 						`Materials:\n${recipe.materials.map((material) => `  ${material.display}: x${material.amount}`).join('\n')}` +
 						`\n\`\`\``,
 					inline: true,

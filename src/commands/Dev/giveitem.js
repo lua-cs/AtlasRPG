@@ -5,7 +5,7 @@ const recipesObject = require('../../utils/crafting/recipes');
 module.exports = {
 	data: {
 		name: 'giveitem',
-		description: 'Give an item to a user',
+		description: '📛 Give an item to a user',
 		options: [
 			{
 				name: 'item',
@@ -72,7 +72,11 @@ function createGiveItemEmbed(giver, receiver, recipe) {
 		fields: [
 			{
 				name: 'Item Details',
-				value: `* Durability: **${recipe.durability}**` + `${recipe.choppingSpeed !== undefined && recipe.choppingSpeed !== null ? `\n* Chopping Speed: **${recipe.choppingSpeed}**` : ''}`,
+				value:
+					`
+				* Durability: **${recipe.durability}**` +
+					(recipe.choppingPower !== undefined && recipe.choppingPower !== null ? `\n* Chopping Power: **${recipe.choppingPower}**` : '') +
+					(recipe.miningPower !== undefined && recipe.miningPower !== null ? `\n* Mining Power: **${recipe.miningPower}**` : ''),
 			},
 		],
 		footer: {

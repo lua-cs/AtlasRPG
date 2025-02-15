@@ -5,7 +5,7 @@ const { getDefaultUserData } = require('../../database/models/userData');
 module.exports = {
 	data: {
 		name: 'resetdata',
-		description: "Reset a user's data",
+		description: "📛 Reset a user's data",
 		options: [
 			{
 				name: 'user',
@@ -28,6 +28,7 @@ module.exports = {
 			await DataService.updateUserData(userId, 'materials', defaultUserData.materials);
 			await DataService.updateUserData(userId, 'equippedItem', defaultUserData.equippedItem);
 			await DataService.updateUserData(userId, 'inventory', defaultUserData.inventory);
+			await DataService.updateUserData(userId, 'lastDaily', defaultUserData.lastDaily);
 
 			await interaction.editReply({
 				content: `Successfully reset data for ${targetUser.username}.`,

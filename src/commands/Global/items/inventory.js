@@ -1,14 +1,24 @@
+const { ApplicationCommandOptionType } = require('discord.js');
 const DataService = require('../../../database/repositories/userDataRepositories');
 const recipesObject = require('../../../utils/crafting/recipes');
 
 module.exports = {
 	data: {
 		name: 'inventory',
-		description: 'Show your inventory',
+		description: "Show your or another user's inventory",
+		options: [
+			{
+				name: 'user',
+				description: 'User whose inventory to view',
+				type: ApplicationCommandOptionType.User,
+				required: false,
+			},
+		],
 	},
 
 	run: async ({ interaction }) => {
-		const userId = interaction.user.id;
+		const targetUser = interaction.options.getUser('user') || interaction.user;
+		const userId = targetUser.id;
 
 		await interaction.deferReply();
 
@@ -16,44 +26,49 @@ module.exports = {
 			const userData = await DataService.getUserData(userId);
 
 			const inventoryItems = Object.keys(userData.inventory).map((itemName) => {
-				const recipe = recipesObject.find((r) => r.name === itemName);
+				const item = recipesObject.find((r) => r.name === itemName) || {};
 				return {
-					name: recipe.name,
+					name: itemName,
 					durability: userData.inventory[itemName].durability,
-					choppingSpeed: recipe.choppingSpeed,
-					equippable: recipe.equippable,
+					choppingPower: item.choppingPower,
+					equippable: item.equippable,
+					materials: Array.isArray(item.materials) ? item.materials : [],
 				};
 			});
 
 			const equippedItem = userData.equippedItem;
+			const inventoryEmbed = createInventoryEmbed(targetUser, inventoryItems, equippedItem, userData.materials, interaction, userData.balance);
 
-			const inventoryEmbed = createInventoryEmbed(interaction.user, inventoryItems, equippedItem, userData.materials);
 			await interaction.editReply({ embeds: [inventoryEmbed] });
 		} catch (error) {
 			console.error('Error displaying inventory:', error);
 			await interaction.editReply({
-				content: 'There was an error displaying your inventory.',
+				content: 'There was an error displaying the inventory.',
 				ephemeral: true,
 			});
 		}
 	},
 };
 
-function createInventoryEmbed(user, items, equippedItem, materials) {
+function createInventoryEmbed(user, items, equippedItem, materials, interaction, userBalance) {
 	const fields = [];
 
-	if (equippedItem) {
-		fields.push({
-			name: 'Equipped Item',
-			value:
-				`\`\`\`yaml\n` +
-				`Name: ${equippedItem.name}\n` +
-				`Durability: ${equippedItem.durability}\n` +
-				`${equippedItem.choppingSpeed !== undefined && equippedItem.choppingSpeed !== null ? `Chopping Speed: ${equippedItem.choppingSpeed}\n` : ''}` +
-				`\`\`\``,
-			inline: true,
-		});
-	}
+	fields.push({
+		name: 'Balance',
+		value: `\`\`\`yaml\n$${userBalance}\`\`\``,
+		inline: false,
+	});
+
+	fields.push({
+		name: 'Equipped Item',
+		value: equippedItem
+			? `\`\`\`yaml\nName: ${equippedItem.name}\nDurability: ${equippedItem.durability}\n` +
+			  `${equippedItem.choppingPower !== undefined ? `Chopping Speed: ${equippedItem.choppingPower}\n` : ''}` +
+			  `${equippedItem.miningPower !== undefined ? `Mining Power: ${equippedItem.miningPower}\n` : ''}` +
+			  '```'
+			: '```yaml\nNo item equipped\n```',
+		inline: true,
+	});
 
 	const materialsString = `\`\`\`yaml\n${Object.keys(materials)
 		.map((material) => `${material.replace('_', ' ').replace(/\b\w/g, (char) => char.toUpperCase())}: ${materials[material]}`)
@@ -61,36 +76,35 @@ function createInventoryEmbed(user, items, equippedItem, materials) {
 
 	fields.push({
 		name: 'Materials',
-		value: materialsString || 'You have no materials.',
+		value: materialsString,
 		inline: true,
 	});
 
 	const inventoryString = items
 		.map(
 			(item) =>
-				`\`\`\`yaml\n` +
-				`Name: ${item.name}\n` +
+				`\`\`\`yaml\nName: ${item.name}\n` +
 				`Durability: ${item.durability}\n` +
-				`${item.choppingSpeed !== undefined && item.choppingSpeed !== null ? `Chopping Speed: ${item.choppingSpeed}\n` : ''}` +
-				`Equippable: ${item.equippable ? 'Yes' : 'No'}\n` +
-				`\`\`\``
+				`${item.choppingPower !== undefined ? `Chopping Speed: ${item.choppingPower}\n` : ''}` +
+				`${item.miningPower !== undefined ? `Mining Power: ${item.miningPower}\n` : ''}` +
+				'\n```'
 		)
 		.join('\n');
 
 	fields.push({
 		name: 'Inventory Items',
-		value: inventoryString || 'You have no items.',
+		value: inventoryString || '```yaml\nYou have nothing in your inventory```',
 		inline: false,
 	});
 
 	return {
-		title: `Your Inventory`,
+		title: user.id === interaction.user.id ? 'Your Inventory' : `${user.username}'s Inventory`,
 		color: 0xffffff,
 		description: '',
 		fields: fields,
 		footer: {
-			text: user.username,
-			icon_url: user.displayAvatarURL(),
+			text: interaction.user.username,
+			icon_url: interaction.user.displayAvatarURL(),
 		},
 	};
 }
