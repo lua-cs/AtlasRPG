@@ -1,4 +1,4 @@
-const { ApplicationCommandOptionType, ActionRowBuilder, StringSelectMenuBuilder } = require('discord.js');
+const { ActionRowBuilder, StringSelectMenuBuilder } = require('discord.js');
 const DataService = require('../../../database/repositories/userDataRepositories');
 const recipesObject = require('../../../utils/crafting/recipes');
 

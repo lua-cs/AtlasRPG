@@ -1,6 +1,28 @@
+1. Add leveling to /mine
+2. Add how much extra xp all tools get
+3. Rename equippable items to tools
+4. Fix axes to have what they can get and how much
+5. Fix commands/ dir
+
+---
+
+Title: 🌲Tree Chopped
+Description: You successfully chopped down an Oak Tree
+Fields:
+- Time Took: ⌛ 10s
+- Logs Obtained: :oak_wood: 4 Oak Wood
+- Rare Drops: ❌ None
+- Chopping Streak: 🔥4
+- Axe Durability: 🪓 21/25
+- XP Gained: ⭐ +40 Lumberjack XP
+
+---
+
 const { AttachmentBuilder } = require('discord.js');
 const DataService = require('../../../database/repositories/userDataRepositories');
+const path = require('path');
 const activeUsers = new Set();
+const { xp } = require('../../../utils/helper');
 
 module.exports = {
 	data: { name: 'choptree', description: 'Chop down trees with your axe for wood materials' },
@@ -34,61 +56,50 @@ module.exports = {
 			const axe = equippedItem;
 			const treeType = ['oak_tree', 'birch_tree'][Math.floor(Math.random() * 2)];
 			const woodType = `${treeType.split('_')[0]}_wood`;
-			const woodEmoji = woodType === 'oak_wood' ? '<:oak_wood:1341904056259448966>' : '<:birch_wood:1341904088383750247>';
+			const treeImage = new AttachmentBuilder(path.resolve(__dirname, '../../../images', `${treeType}.png`));
+
 			const woodCollected = Math.floor(Math.random() * 5) + 1;
 			const woodAmount = userData.materials[woodType] || 0;
-			const progressStep = axe.choppingPower === Infinity ? 100 : axe.choppingPower || 10;
-			const timeTook = (100 / progressStep) * 1;
+
+			const progressStep = (axe.choppingPower === Infinity ? 100 : axe.choppingPower) || 10;
+			const estimatedTime = (100 / progressStep) * 1;
+
 			const formattedTreeName = treeType.replace('_tree', '').replace(/^\w/, (c) => c.toUpperCase());
 
-			let embed = {
+			const embed = {
 				color: 0x90ee90,
-				title: `Chopping tree..`,
-				description: `🌳 You have started chopping a **${formattedTreeName} Tree**.`,
+				title: `Chopping ${formattedTreeName} Tree..`,
+				description: `You have started chopping a **${formattedTreeName} Tree** 🌳`,
 				fields: [
 					{ name: 'Tree Type', value: `${formattedTreeName} Tree`, inline: true },
 					{ name: 'Progress', value: '0%', inline: true },
 				],
 				footer: { text: interaction.user.username, icon_url: interaction.user.displayAvatarURL() },
+				image: { url: `attachment://${treeType}.png` },
 			};
 
-			await interaction.editReply({ embeds: [embed] });
+			await interaction.editReply({ embeds: [embed], files: [treeImage] });
 
 			for (let progress = progressStep; progress <= 100; progress += progressStep) {
-				let filledBlocks = Math.floor(progress / 12.5);
-				let emptyBlocks = 8 - filledBlocks;
-				let progressBar = '▓'.repeat(filledBlocks) + '░'.repeat(emptyBlocks);
-				embed.fields[1].value = `${progressBar} ${progress}%`;
-
+				embed.fields[1].value = progress === 100 ? `DONE (${estimatedTime}s)` : `${progress}%`;
 				await interaction.editReply({ embeds: [embed] });
 
 				if (progress === 100) {
-					embed.title = `Tree Chopped!`;
-					embed.description = `🌲 **You've successfully chopped down a ${formattedTreeName} Tree!**`;
+					const userXpMultiplier = userData.levelData.prestige + 1;
+					const toolMultiplier = axe.xpMultiplier || 1;
+					const xpUpgradeMultiplier = 1.0;
+					const globalXpMultiplier = 1.0;
+					const earnedXp = xp.calculateXp(woodType, 1, userXpMultiplier, toolMultiplier, xpUpgradeMultiplier, globalXpMultiplier);
+					const xpResult = await xp.applyXp(earnedXp, userId);
 
-					embed.fields = [
-						{ name: 'Logs Obtained', value: `${woodEmoji} ${woodCollected} ${formattedTreeName} Wood`, inline: true },
-						{ name: 'Chopping Streak', value: `<:streak:1341909633689845760> ${userData.choppingStreak || 1}`, inline: true },
-						{ name: 'Class XP Gained', value: `⭐ +40 Lumberjack XP`, inline: true },
-						{ name: 'Time Took', value: `⌛ ${timeTook}s`, inline: true },
-						{
-							name: 'Axe Durability',
-							value: axe.durability <= 1 ? `🪓 Your axe broke!` : `🪓 ${axe.durability - 1} Uses left`,
-							inline: true,
-						},
-						{ name: 'Rare Drops', value: `<:Removed:1338951500524949546> None`, inline: true },
-					];
-
-					userData.choppingStreak = (userData.choppingStreak || 0) + 1;
-					axe.durability--;
-
-					if (axe.durability <= 0) {
-						userData.equippedItem = null;
-						userData.choppingStreak = 0;
-					}
+					embed.title = `${formattedTreeName} Tree Chopped!`;
+					embed.description =
+						`🌲 **You've successfully chopped down a ${formattedTreeName} Tree!**\n\n` +
+						`- 🪵 **Wood Collected:** +${woodCollected} ${formattedTreeName} Wood\n` +
+						`- 📦 **Total Wood:** ${woodAmount + woodCollected} ${formattedTreeName} Wood\n` +
+						`- 🏆 **XP Earned:** ${xpResult}`;
 
 					await interaction.editReply({ embeds: [embed] });
-
 					break;
 				}
 
@@ -96,8 +107,14 @@ module.exports = {
 			}
 
 			userData.materials[woodType] = woodAmount + woodCollected;
+
+			if (axe.durability !== Infinity && --axe.durability <= 0) {
+				userData.equippedItem = null;
+				embed.description += `\n## Your **${axe.name}** broke!`;
+				await interaction.editReply({ embeds: [embed] });
+			}
+
 			await DataService.updateUserData(userId, 'materials', userData.materials);
-			await DataService.updateUserData(userId, 'choppingStreak', userData.choppingStreak);
 			await DataService.updateUserData(userId, 'equippedItem', userData.equippedItem);
 		} catch (error) {
 			console.error(`Error in ${__filename}:`, error);

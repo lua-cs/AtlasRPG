@@ -49,11 +49,11 @@ const updates = [
       - View an update changelog for recent versions`,
 	},
 	{
-		name: 'v1.1.2',
+		name: 'v1.2.0',
 		description: `# Update Changelog
 > **Date:** February 12, 2025
-> **Update Version:** v1.1.2
-> **Update Type:** Minor
+> **Update Version:** v1.2.0
+> **Update Type:** Major
 # <:Added:1338951944890482758> New Commands:
 1. **/ping**
    - Check the bot's latency.
@@ -70,6 +70,33 @@ const updates = [
 ## Note:
 * The next update will be the **Mining Update**, introducing new features such as **Stone**, **Iron**, **Pickaxes**, and **more**!
 `,
+	},
+	{
+		name: 'v1.3.0',
+		description: `# Update Changelog
+> **Date**: February 14, 2025
+> **Update Version**: v1.3.0 *Updates are now displayed differently*
+> **Update Type**: Major
+# <:Added:1338951944890482758> New Commands:
+1. **/mine**
+   - Mine some materials with your pickaxe.
+2. **/coinflip**
+   - Choose between heads and tails to gamble your money for a chance to double it or lose it
+3. **/daily**
+   - Claim your daily reward of cash every 24 hours
+
+# <:Changes:1339074004601802772> Changes Made:
+* New recipe category: **Pickaxes**
+* Nerfed wood collection output from \`/choptree\`
+* All text commands now use embeds instead of plain text
+* Bug fixes and performance issues fixed
+* Changed \`/equip\` to now include a dropdown for better readability
+* Removed \`/unequip\` command, as it was useless
+* Fixed a bug where materials could be duplicated in your inventory
+* New Materials: **Stone, Iron, Gold, Diamond**
+
+# Note:
+* Next update will introduce **Leveling**, including level-locked recipes and level up rewards, as well as a leaderboard for new-found competitiveness!`,
 	},
 ];
 
