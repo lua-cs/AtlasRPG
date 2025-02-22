@@ -1,4 +1,4 @@
-const DataService = require('../../../database/repositories/userDataRepositories');
+const DataService = require('../../database/repositories/userDataRepositories');
 
 module.exports = {
 	data: { name: 'daily', description: 'Claim your daily reward' },

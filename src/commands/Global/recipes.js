@@ -2,7 +2,7 @@ const { ApplicationCommandOptionType } = require('discord.js');
 
 module.exports = {
 	data: {
-		name: 'itemrecipes',
+		name: 'recipes',
 		description: 'View crafting recipes for a specified category',
 		options: [
 			{
@@ -19,7 +19,7 @@ module.exports = {
 	},
 
 	run: async ({ interaction }) => {
-		const recipesObject = require('../../../utils/crafting/recipes');
+		const recipesObject = require('../../utils/crafting/recipes');
 		const category = interaction.options.getString('category');
 
 		await interaction.deferReply();

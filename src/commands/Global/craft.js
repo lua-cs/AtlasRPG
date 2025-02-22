@@ -1,5 +1,5 @@
 const { ApplicationCommandOptionType } = require('discord.js');
-const DataService = require('../../../database/repositories/userDataRepositories');
+const DataService = require('../../database/repositories/userDataRepositories');
 
 module.exports = {
 	data: {
@@ -21,7 +21,7 @@ module.exports = {
 	},
 
 	run: async ({ interaction }) => {
-		const recipesObject = require('../../../utils/crafting/recipes');
+		const recipesObject = require('../../utils/crafting/recipes');
 		const item = interaction.options.getString('item');
 		const userId = interaction.user.id;
 
@@ -31,7 +31,10 @@ module.exports = {
 			const recipe = recipesObject.find((r) => r.name === item);
 			const userData = await DataService.getUserData(userId);
 
-			if (userData.inventory[item] || (userData.equippedItem && userData.equippedItem.name === item)) {
+			if (
+				userData.inventory[item] ||
+				(userData.equippedItem && userData.equippedItem.name === item)
+			) {
 				await interaction.editReply({
 					embeds: [
 						{
@@ -44,7 +47,10 @@ module.exports = {
 				return;
 			}
 
-			const hasEnoughMaterials = recipe.materials.every((material) => userData.materials[material.name] >= material.amount);
+			const hasEnoughMaterials = recipe.materials.every(
+				(material) =>
+					userData.materials[material.name] >= material.amount
+			);
 			if (!hasEnoughMaterials) {
 				await interaction.editReply({
 					embeds: [
@@ -58,10 +64,21 @@ module.exports = {
 				return;
 			}
 
-			await Promise.all(recipe.materials.map((material) => DataService.updateUserData(userId, `materials.${material.name}`, userData.materials[material.name] - material.amount)));
+			await Promise.all(
+				recipe.materials.map((material) =>
+					DataService.updateUserData(
+						userId,
+						`materials.${material.name}`,
+						userData.materials[material.name] - material.amount
+					)
+				)
+			);
 
 			const newItem = { [recipe.name]: recipe };
-			await DataService.updateUserData(userId, 'inventory', { ...userData.inventory, ...newItem });
+			await DataService.updateUserData(userId, 'inventory', {
+				...userData.inventory,
+				...newItem,
+			});
 
 			const craftEmbed = createCraftEmbed(interaction.user, recipe);
 			await interaction.editReply({ embeds: [craftEmbed] });
@@ -86,9 +103,24 @@ function createCraftEmbed(user, recipe) {
 				value:
 					`\`\`\`yaml\n` +
 					`Durability: ${recipe.durability}\n` +
-					`${recipe.choppingPower !== undefined && recipe.choppingPower !== null ? `Chopping Power: ${recipe.choppingPower}\n` : ''}` +
-					`${recipe.miningPower !== undefined && recipe.miningPower !== null ? `Mining Power: ${recipe.miningPower}\n` : ''}` +
-					`Materials:\n${recipe.materials.map((material) => `  ${material.display}: x${material.amount}`).join('\n')}` +
+					`${
+						recipe.choppingPower !== undefined &&
+						recipe.choppingPower !== null
+							? `Chopping Power: ${recipe.choppingPower}\n`
+							: ''
+					}` +
+					`${
+						recipe.miningPower !== undefined &&
+						recipe.miningPower !== null
+							? `Mining Power: ${recipe.miningPower}\n`
+							: ''
+					}` +
+					`Materials:\n${recipe.materials
+						.map(
+							(material) =>
+								`  ${material.display}: x${material.amount}`
+						)
+						.join('\n')}` +
 					`\`\`\``,
 			},
 		],

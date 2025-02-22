@@ -1,6 +1,5 @@
 const { ApplicationCommandOptionType } = require('discord.js');
 const DataService = require('../../database/repositories/userDataRepositories');
-const { getDefaultUserData } = require('../../database/models/userData');
 
 module.exports = {
 	data: {
@@ -17,18 +16,14 @@ module.exports = {
 	},
 
 	run: async ({ interaction }) => {
-		const targetUser = interaction.options.getUser('user') || interaction.user;
+		const targetUser =
+			interaction.options.getUser('user') || interaction.user;
 		const userId = targetUser.id;
 
 		await interaction.deferReply();
 
 		try {
-			const defaultUserData = getDefaultUserData(userId);
-			await DataService.updateUserData(userId, 'balance', defaultUserData.balance);
-			await DataService.updateUserData(userId, 'materials', defaultUserData.materials);
-			await DataService.updateUserData(userId, 'equippedItem', defaultUserData.equippedItem);
-			await DataService.updateUserData(userId, 'inventory', defaultUserData.inventory);
-			await DataService.updateUserData(userId, 'lastDaily', defaultUserData.lastDaily);
+			await DataService.resetUserData(userId);
 
 			await interaction.editReply({
 				content: `Successfully reset data for ${targetUser.username}.`,

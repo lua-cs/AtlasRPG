@@ -1,4 +1,4 @@
-const DataService = require('../../../database/repositories/userDataRepositories');
+const DataService = require('../../database/repositories/userDataRepositories');
 const activeUsers = new Set();
 
 module.exports = {
